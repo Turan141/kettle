@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Kettle Simulator</title>
+    <!-- React CDN -->
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <!-- Babel Standalone -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script type="text/babel">
+    // Electric Kettle Component
+    class ElectricKettle extends React.Component {
+        constructor() {
+            super();
+            // Initial state of the Electric Kettle
+            this.state = {
+                isOn: false,          // Kettle status (On/Off)
+                waterLevel: 0,        // Current water level (0 to 1.0)
+                temperature: 0,       // Current temperature in degrees Celsius
+                message: "Off",       // Status message (Off/On/Stopped/Boiled)
+            };
+        }
+
+        componentDidMount() {
+            // Set up a timer to simulate the kettle behavior
+            this.timer = setInterval(() => {
+                if (this.state.isOn && this.state.waterLevel < 1.0) {
+                    // Simulate heating up the water
+                    const newWaterLevel = Math.min(this.state.waterLevel + 0.1, 1.0);
+                    const newTemperature = Math.round(newWaterLevel * 100);
+                    // Update state with new water level and temperature
+                    this.setState({ waterLevel: newWaterLevel, temperature: newTemperature });
+                } else if (this.state.isOn && this.state.waterLevel === 1.0) {
+                    // Water has boiled
+                    this.setState({ message: "Boiled" });
+                    // Stop the timer
+                    clearInterval(this.timer);
+                }
+            }, 1000);
+        }
+
+        componentWillUnmount() {
+            // Cleanup: Stop the timer when the component is unmounted
+            clearInterval(this.timer);
+        }
+
+        handleToggle = () => {
+            // Toggle the kettle status when the button is clicked
+            if (this.state.isOn) {
+                // If the kettle is on, turn it off
+                this.setState({ isOn: false, message: "Stopped" });
+                // Stop the timer
+                clearInterval(this.timer);
+            } else {
+                // If the kettle is off, turn it on
+                this.setState({ isOn: true, message: "On" });
+            }
+        };
+
+        render() {
+            return (
+                <div>
+                    <p>Status: {this.state.message}</p>
+                    {this.state.isOn && <p>Temperature: {this.state.temperature}°C</p>}
+                    <button onClick={this.handleToggle}>Toggle Kettle</button>
+                </div>
+            );
+        }
+    }
+
+    // Render the Electric Kettle component into the app div
+    ReactDOM.render(<ElectricKettle />, document.getElementById('app'));
+</script>
+
+</body>
+</html>
